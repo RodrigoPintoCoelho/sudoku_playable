@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Simple Sudoku Game</title>
+
   <style>
     :root{--cell-size:46px;--gap:3px;font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial}
     body{display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px;background:#f7f7fb;color:#111}
@@ -15,16 +16,18 @@
     .controls{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
     button{padding:8px 12px;border-radius:6px;border:0;background:#4b6cff;color:white;font-weight:600}
     #status{min-height:20px}
+    #ad-banner{width:320px;height:50px;border:2px dashed #bbb;display:flex;align-items:center;justify-content:center;margin-top:12px}
   </style>
 
-  <!-- Google Analytics 4 -->
+  <!-- GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-WQ505L2965"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-WQ505L2965'); // Replace G-XXXXXXXXXX with your GA4 Measurement ID
+    gtag('config', 'G-WQ505L2965'); // Replace with your GA4 Measurement ID
   </script>
+
   <!-- AdSense -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9900797444425339"
           crossorigin="anonymous"></script>
@@ -43,35 +46,52 @@
 
   <div id="status"></div>
 
+<!-- Bottom banner AdSense -->
+<div id="ad-banner" style="margin-top:12px; display:flex; justify-content:center;">
+  <!-- display_001 -->
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-9900797444425339"
+       data-ad-slot="7022704037"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+</div>
+<script>
+  (adsbygoogle = window.adsbygoogle || []).push({});
+  // Optional: track impression in GA4
+  gtag('event','ad_impression',{location:'bottom'});
+</script>
+
   <script>
-    /* ------------------ Simple puzzles (easy) ------------------ */
     const PUZZLES = [
-      { id:1, puzzle: "530070000600195000098000060800060003400803001700020006060000280000419005000080079", solution: "534678912672195348198342567859761423426853791713924856961537284287419635345286179" },
-      { id:2, puzzle: "200080300060070084030500209000105408000000000402706000301007040720040060004010003", solution: "247981356561273984938546219873195428195824637426736591381657942729348165654912873" }
+      {id:1, puzzle:"530070000600195000098000060800060003400803001700020006060000280000419005000080079", solution:"534678912672195348198342567859761423426853791713924856961537284287419635345286179"},
+      {id:2, puzzle:"200080300060070084030500209000105408000000000402706000301007040720040060004010003", solution:"247981356561273984938546219873195428195824637426736591381657942729348165654912873"},
+      {id:3, puzzle:"000260701680070090190004500820100040004602900050003028009300074040050036703018000", solution:"435269781682571493197834562826195347374682915951743628519326874248957136763418259"},
+      {id:4, puzzle:"300000000005009000200504000020000700160000058704000000000200400000001000000000007", solution:"391687245485219736276534891823461579169372458754895123537928461942751368618143927"},
+      {id:5, puzzle:"000900002000305000706000000020000000000007130000080000000000407000000000001000000", solution:"451967382829345761736812945324596678695287134178134529263579487987421356514683297"},
+      {id:6, puzzle:"000000907000420180000705026100904000050000040000507009920108000034059000507000000", solution:"512673947963428185847715326176934852258196734394587619929841673634259471587362498"},
+      {id:7, puzzle:"030050040008010500460000012070502080000603000040109030250000098001020600080060020", solution:"731659842928314576465872312173542689859763421246189735257431968394128657681596243"},
+      {id:8, puzzle:"001900003020000000000507000000000000000000000000100020000000040800000000030006700", solution:"451962783927831645386547219763495821195278436842136957519724368874653192238619574"},
+      {id:9, puzzle:"000000000400000002001008000000000070060030000000100800000600900900000000000000000", solution:"528971634476135892391248576814592367967436215253617948135864729692753481784329651"},
+      {id:10,puzzle:"000000080000003000005000000000000020700000000000001000000200000010000000060000000", solution:"619472385472583961385916472846759123731648259295321647958237614127694538364185796"}
     ];
 
     let state = {puzzleIdx:0, startTime:null, moves:0, solved:false};
-
-    /* ------------------ Board rendering ------------------ */
     const boardEl = document.getElementById('board');
 
-    function renderGrid(puzzleStr) {
-      boardEl.innerHTML = '';
+    function renderGrid(puzzleStr){
+      boardEl.innerHTML='';
       for(let i=0;i<81;i++){
-        const cell = document.createElement('div');
-        cell.className = 'cell';
-        const val = puzzleStr[i];
-        const input = document.createElement('input');
+        const cell=document.createElement('div');
+        cell.className='cell';
+        const val=puzzleStr[i];
+        const input=document.createElement('input');
         input.type='text'; input.maxLength=1;
-        input.dataset.index = i;
-        const r = Math.floor(i/9), c = i%9;
+        input.dataset.index=i;
+        const r=Math.floor(i/9), c=i%9;
         if((c%3)===2) cell.style.marginRight='6px';
         if((r%3)===2) cell.style.marginBottom='6px';
-        if(val!=='0'){
-          input.value = val;
-          input.disabled = true;
-          cell.classList.add('prefill');
-        }
+        if(val!=='0'){ input.value=val; input.disabled=true; cell.classList.add('prefill'); }
         input.addEventListener('input', onCellInput);
         cell.appendChild(input);
         boardEl.appendChild(cell);
@@ -79,70 +99,65 @@
     }
 
     function readGrid(){
-      const inputs = boardEl.querySelectorAll('input');
-      return Array.from(inputs).map(i=>i.value.trim() || '0').join('');
+      const inputs=boardEl.querySelectorAll('input');
+      return Array.from(inputs).map(i=>i.value.trim()||'0').join('');
     }
 
-    function setCellValue(idx, v){
-      const input = boardEl.querySelector(`input[data-index='${idx}']`);
-      if(input && !input.disabled){ input.value = v; }
+    function setCellValue(idx,v){
+      const input=boardEl.querySelector(`input[data-index='${idx}']`);
+      if(input && !input.disabled) input.value=v;
     }
 
-    /* ------------------ Basic interactions ------------------ */
     function onCellInput(e){
-      const v = e.target.value.replace(/[^1-9]/g,'');
-      e.target.value = v;
+      const v=e.target.value.replace(/[^1-9]/g,'');
+      e.target.value=v;
       state.moves++;
     }
 
-    document.getElementById('newGameBtn').addEventListener('click', ()=>startNewGame());
-    document.getElementById('checkBtn').addEventListener('click', ()=>checkSolution(false));
-    document.getElementById('solveBtn').addEventListener('click', ()=>checkSolution(true));
-    document.getElementById('hintBtn').addEventListener('click', ()=>giveHint());
+    document.getElementById('newGameBtn').addEventListener('click',()=>startNewGame());
+    document.getElementById('checkBtn').addEventListener('click',()=>checkSolution(false));
+    document.getElementById('solveBtn').addEventListener('click',()=>checkSolution(true));
+    document.getElementById('hintBtn').addEventListener('click',()=>giveHint());
 
-    /* ------------------ Game lifecycle ------------------ */
     function startNewGame(){
-      state.puzzleIdx = (state.puzzleIdx + 1) % PUZZLES.length;
-      const p = PUZZLES[state.puzzleIdx];
+      state.puzzleIdx=(state.puzzleIdx+1)%PUZZLES.length;
+      const p=PUZZLES[state.puzzleIdx];
       renderGrid(p.puzzle);
-      state.startTime = Date.now(); state.moves = 0; state.solved=false;
+      state.startTime=Date.now(); state.moves=0; state.solved=false;
       setStatus('New game — good luck!');
-      gtag('event', 'game_start', { puzzle_id: p.id });
+      gtag('event','game_start',{puzzle_id:p.id});
+      gtag('event','ad_impression',{location:'bottom'});
     }
 
     function checkSolution(reveal=false){
-      const current = readGrid();
-      const sol = PUZZLES[state.puzzleIdx].solution;
-      if(current === sol){
-        state.solved = true;
-        const timeSec = Math.round((Date.now()-state.startTime)/1000);
+      const current=readGrid();
+      const sol=PUZZLES[state.puzzleIdx].solution;
+      if(current===sol){
+        state.solved=true;
+        const timeSec=Math.round((Date.now()-state.startTime)/1000);
         setStatus('Solved! Time: '+timeSec+'s | moves: '+state.moves);
-        gtag('event', 'game_end', { puzzle_id: PUZZLES[state.puzzleIdx].id, time_sec: timeSec, moves: state.moves });
+        gtag('event','game_end',{puzzle_id:PUZZLES[state.puzzleIdx].id,time_sec:timeSec,moves:state.moves});
       } else if(reveal){
-        for(let i=0;i<81;i++) setCellValue(i, sol[i]);
+        for(let i=0;i<81;i++) setCellValue(i,sol[i]);
         setStatus('Solution revealed');
-        gtag('event', 'solve_revealed', { puzzle_id: PUZZLES[state.puzzleIdx].id });
-      } else {
-        setStatus('Not solved yet — keep trying');
-      }
+        gtag('event','solve_revealed',{puzzle_id:PUZZLES[state.puzzleIdx].id});
+      } else setStatus('Not solved yet — keep trying');
     }
 
-    function setStatus(msg){ document.getElementById('status').textContent = msg; }
+    function setStatus(msg){ document.getElementById('status').textContent=msg; }
 
-    /* ------------------ Hint ------------------ */
     function giveHint(){
-      const sol = PUZZLES[state.puzzleIdx].solution;
-      const current = readGrid();
-      const emptyIdx = [];
+      const sol=PUZZLES[state.puzzleIdx].solution;
+      const current=readGrid();
+      const emptyIdx=[];
       for(let i=0;i<81;i++) if(current[i]==='0') emptyIdx.push(i);
       if(emptyIdx.length===0){ setStatus('No empty cells for hint'); return; }
-      const idx = emptyIdx[Math.floor(Math.random()*emptyIdx.length)];
-      setCellValue(idx, sol[idx]);
+      const idx=emptyIdx[Math.floor(Math.random()*emptyIdx.length)];
+      setCellValue(idx,sol[idx]);
       setStatus('Hint given');
-      gtag('event', 'hint_used', { puzzle_id: PUZZLES[state.puzzleIdx].id, cell_index: idx });
+      gtag('event','hint_used',{puzzle_id:PUZZLES[state.puzzleIdx].id,cell_index:idx});
     }
 
-    /* ------------------ Init ------------------ */
     startNewGame();
   </script>
 </body>
